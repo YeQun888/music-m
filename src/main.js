@@ -2,17 +2,16 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 
-import MuseUI from 'muse-ui';
-import 'muse-ui/dist/muse-ui.css';
+import MuseUI from 'muse-ui'
+import 'muse-ui/dist/muse-ui.css'
 
-Vue.use(MuseUI);
+Vue.use(MuseUI)
 
 Vue.config.productionTip = false
 
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: {App},
   template: '<App/>'
 })
-
