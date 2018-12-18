@@ -5,6 +5,7 @@ import router from './router'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 import './assets/font/font.css'
+import store from './store/store.js'
 
 Vue.use(MuseUI)
 

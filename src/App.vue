@@ -8,11 +8,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-@import './assets/font/font.css';
+<style lang="scss" >
 
-body {
-  background: #fff;
-  font-family: PingFang Light;
-}
+
 </style>

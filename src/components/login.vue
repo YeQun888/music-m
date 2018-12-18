@@ -10,7 +10,7 @@
     </mu-row>
     <mu-flex class="flex-wrapper" justify-content="center">
       <mu-flex class="flex-demo" justify-content="center" fill>
-        <mu-form ref="form" :model="validateForm" class="mu-demo-form" >
+        <mu-form ref="form" :model="validateForm" class="mu-demo-form">
           <mu-form-item prop="phone" :rules="phoneRules" class="phone">
             <mu-text-field
               v-model="validateForm.phone"
@@ -29,7 +29,7 @@
             ></mu-text-field>
           </mu-form-item>
           <mu-form-item>
-            <mu-button color="#d43c33" @click="submit" type="submit" full-width>提交</mu-button>
+            <mu-button color="#d43c33" @click="submit" type="submit" full-width>登录</mu-button>
           </mu-form-item>
         </mu-form>
       </mu-flex>
@@ -37,7 +37,8 @@
   </mu-container>
 </template>
 <script>
-import { login } from '../service/getData'
+import { localapi, proapi } from '../config/env'
+import { getLogin } from '../service/getData'
 
 export default {
   name: 'login',
@@ -45,23 +46,21 @@ export default {
     return {
       phoneRules: [
         { validate: (val) => !!val, message: '必须填写手机号' },
-        { validate: (val) => val.length < 12, message: '手机号必须小于11位' }
       ],
       passwordRules: [
         { validate: (val) => !!val, message: '必须填写密码' },
-        { validate: (val) => val.length > 5, message: '密码长度大于3小于10' }
       ],
       validateForm: {
         phone: '',
         password: '',
         isAgree: false
-      }
+      },
     }
   },
   methods: {
-    submit: function () {
-      this.$refs.form.validate().then((result) => {
-        console.log('form valid: ', result)
+    submit() {
+      getLogin(this.validateForm.phone, this.validateForm.password).then(res => {
+        this.$router.push({ path: '/home' })
       })
     },
   }

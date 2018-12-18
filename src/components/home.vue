@@ -25,41 +25,6 @@
             <p>暖冬治愈｜把孤独慢慢变成诗</p>
           </div>
         </mu-col>
-        <mu-col span="4">
-          <div class="grid-cell">
-            <img src="../assets/image/img-0.jpg" alt>
-            <span class="u-earp remd_lnum">227.2万</span>
-            <p>暖冬治愈｜把孤独慢慢变成诗</p>
-          </div>
-        </mu-col>
-        <mu-col span="4">
-          <div class="grid-cell">
-            <img src="../assets/image/img-0.jpg" alt>
-            <span class="u-earp remd_lnum">227.2万</span>
-            <p>暖冬治愈｜把孤独慢慢变成诗</p>
-          </div>
-        </mu-col>
-        <mu-col span="4">
-          <div class="grid-cell">
-            <img src="../assets/image/img-0.jpg" alt>
-            <span class="u-earp remd_lnum">227.2万</span>
-            <p>暖冬治愈｜把孤独慢慢变成诗</p>
-          </div>
-        </mu-col>
-        <mu-col span="4">
-          <div class="grid-cell">
-            <img src="../assets/image/img-0.jpg" alt>
-            <span class="u-earp remd_lnum">227.2万</span>
-            <p>暖冬治愈｜把孤独慢慢变成诗</p>
-          </div>
-        </mu-col>
-        <mu-col span="4">
-          <div class="grid-cell">
-            <img src="../assets/image/img-0.jpg" alt>
-            <span class="u-earp remd_lnum">227.2万</span>
-            <p>暖冬治愈｜把孤独慢慢变成诗</p>
-          </div>
-        </mu-col>
       </mu-row>
       <div class="s-list">
         <p>最新音乐</p>
@@ -86,13 +51,23 @@
 </template>
 
 <script>
+import { getPersonalized } from '../service/getData'
+
+
+
 export default {
   name: 'home',
   data() {
     return {
-      active2: 0
-    };
-  }
+      resource: '',
+      active2: 0,
+    }
+  },
+  mounted() {
+    getPersonalized().then(res => {
+      console.log(res);
+    })
+  },
 }
 </script>
 
