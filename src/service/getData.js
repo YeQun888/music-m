@@ -9,3 +9,5 @@ export const getLogin = (phone, password) => fetch('/login/cellphone', {
 
 
 export const getPersonalized = () => fetch('/personalized', {});
+
+export const getNewsong = () => fetch('/personalized/newsong', {});

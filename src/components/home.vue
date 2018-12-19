@@ -18,11 +18,11 @@
         <p>推荐歌单</p>
       </div>
       <mu-row gutter>
-        <mu-col span="4">
+        <mu-col span="4" v-for="(item,index) in songList" :key="item.id" v-if="index < 6">
           <div class="grid-cell">
-            <img src="../assets/image/img-0.jpg" alt>
-            <span class="u-earp remd_lnum">227.2万</span>
-            <p>暖冬治愈｜把孤独慢慢变成诗</p>
+            <img :src="item.picUrl" alt>
+            <span class="u-earp remd_lnum">{{item.trackCount}}万</span>
+            <p>{{item.name}}</p>
           </div>
         </mu-col>
       </mu-row>
@@ -30,16 +30,37 @@
         <p>最新音乐</p>
       </div>
       <mu-list textline="two-line">
-        <mu-list-item avatar :ripple="false" button>
-          <mu-list-item-content>
-            <mu-list-item-title>爱的力量</mu-list-item-title>
-            <mu-list-item-sub-title>王心凌-爱的力量</mu-list-item-sub-title>
+        <mu-list-item avatar :ripple="false" button v-for="item in newSong" :key="item.id">
+          <mu-list-item-content
+            v-for="(artist,index1) in item.song.artists"
+            :key="artist.id"
+            v-if="index1 < 1"
+          >
+            <mu-list-item-title>{{item.song.name}}</mu-list-item-title>
+            <mu-list-item-sub-title>
+              <span>
+                <img src="../assets/icon/SQ.png" alt>
+              </span>
+              {{artist.name}}-{{item.song.name}}
+            </mu-list-item-sub-title>
           </mu-list-item-content>
           <mu-list-item-action>
             <img src="../assets/icon/icon-next.png" alt>
           </mu-list-item-action>
         </mu-list-item>
       </mu-list>
+      <mu-flex justify-content="center" class="footer">
+        <mu-flex justify-content="center">
+          <div>
+            <div class="company-logo">
+              <img src="../assets/icon/login_logo.png" alt>
+              <p>网易云音乐</p>
+            </div>
+            <div class="op-button">打开APP，发现更多好音乐 ></div>
+            <p class="copyright">网易公司版权所有©1997-2018 杭州乐读科技有限公司运营</p>
+          </div>
+        </mu-flex>
+      </mu-flex>
     </div>
     <div class="demo-text" v-if="active2 === 1">
       <p>“我的心从来没有这么坚定过，所以我会为了补偿而死，也可以为了补偿而死……一辈子，急辈子都无所谓，我绝不后退！”</p>
@@ -51,8 +72,7 @@
 </template>
 
 <script>
-import { getPersonalized } from '../service/getData'
-
+import { getPersonalized, getNewsong } from '../service/getData'
 
 
 export default {
@@ -61,12 +81,17 @@ export default {
     return {
       resource: '',
       active2: 0,
+      songList: [],
+      newSong: [],
     }
   },
   mounted() {
     getPersonalized().then(res => {
-      console.log(res);
-    })
+      this.songList = res.result;
+    });
+    getNewsong().then(res => {
+      this.newSong = res.result;
+    });
   },
 }
 </script>
@@ -158,19 +183,62 @@ export default {
       }
     }
     .mu-list {
-      border-bottom: 0 solid rgba(0, 0, 0, 0.1);
-      .mu-item-title {
-        font-size: 18px;
-      }
-      .mu-item-sub-title {
-        font-size: 12px;
-        color: #888;
-      }
-      .mu-item-action {
-        img {
-          width: 22px;
-          height: 22px;
+      li {
+        border-bottom: 1px solid #e5e5e5;
+        .mu-item-title {
+          font-size: 18px;
         }
+        .mu-item-sub-title {
+          font-size: 12px;
+          color: #888;
+          span {
+            img {
+              width: 12px;
+              height: 8px;
+            }
+          }
+        }
+        .mu-item-action {
+          img {
+            width: 22px;
+            height: 22px;
+          }
+        }
+      }
+    }
+    .footer {
+      width: 100%;
+      text-align: center;
+      margin-top: 20px;
+      .company-logo {
+        display: -webkit-flex;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        justify-content: center;
+        line-height: 10px;
+        img {
+          width: 42px;
+          height: 42px;
+        }
+        p {
+          font-size:30px;
+          margin-left: 8px;
+        }
+      }
+      .op-button {
+        line-height: 38px;
+        border: 1px solid #d43c33;
+        border-radius: 38px;
+        font-size: 16px;
+        color: #d43c33;
+      }
+      .copyright {
+        color: #888;
+        font-size: 12px;
+        line-height: 16px;
+        -webkit-transform: scale(0.75);
+        transform: scale(0.75);
       }
     }
   }
