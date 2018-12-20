@@ -13,6 +13,7 @@
       <mu-tab>热歌榜</mu-tab>
       <mu-tab>搜索</mu-tab>
     </mu-tabs>
+    <!-- 推荐音乐 -->
     <div class="rec-music" v-if="active2 === 0">
       <div class="s-list">
         <p>推荐歌单</p>
@@ -45,7 +46,7 @@
             </mu-list-item-sub-title>
           </mu-list-item-content>
           <mu-list-item-action>
-            <img src="../assets/icon/icon-next.png" alt>
+            <img src="../assets/icon/play-circle.png" alt>
           </mu-list-item-action>
         </mu-list-item>
       </mu-list>
@@ -62,27 +63,123 @@
         </mu-flex>
       </mu-flex>
     </div>
-    <div class="demo-text" v-if="active2 === 1">
-      <p>“我的心从来没有这么坚定过，所以我会为了补偿而死，也可以为了补偿而死……一辈子，急辈子都无所谓，我绝不后退！”</p>
+    <!-- 热歌榜 -->
+    <div class="hot-music" v-if="active2 === 1">
+      <div class="hot-bg">
+        <div class="hot-info">
+          <p>云音乐</p>
+          <p>热歌榜</p>
+          <p>更新日期:12月19日</p>
+        </div>
+      </div>
+      <mu-list textline="two-line" class="hot-song-list">
+        <mu-list-item
+          avatar
+          :ripple="false"
+          button
+          v-for="(track,index) in tracks"
+          :key="track.id"
+          class="list-box"
+          v-if="index < 10"
+        >
+          <mu-list-item-action class="list-number">{{index + 1}}</mu-list-item-action>
+          <mu-list-item-content>
+            <mu-list-item-title class="track-name">{{track.name}}</mu-list-item-title>
+            <mu-list-item-sub-title
+              v-for="(ar, index) in track.ar"
+              :key="ar.id"
+              v-if="index < 1"
+            >{{ar.name}}-{{track.al.name}}</mu-list-item-sub-title>
+          </mu-list-item-content>
+          <mu-list-item-action class="play">
+            <img src="../assets/icon/play-circle.png" alt>
+          </mu-list-item-action>
+        </mu-list-item>
+        <p>查看完整榜单 ></p>
+      </mu-list>
     </div>
-    <div class="demo-text" v-if="active2 === 2">
-      <p>“不，这泪水……是因为勇气，因为力量，因为信任，……你不会懂的！”</p>
+    <!-- 搜索 -->
+    <div class="search" v-if="active2 === 2">
+      <form action="searchForm" class="form">
+        <div class="s-input">
+          <i class="s-icon"></i>
+          <input type="text" placeholder="搜索歌曲/歌手/专辑" v-model="keywords">
+        </div>
+      </form>
+
+      <div class="m-recom" v-if="keywords !== ''">
+        <mu-list textline="two-line">
+          <mu-list-item avatar button :ripple="false" id="mu-item">
+            <mu-list-item-content>
+              <mu-list-item-title id="m-keywords">搜索"{{keywords}}"</mu-list-item-title>
+            </mu-list-item-content>
+          </mu-list-item>
+          <mu-list-item
+            avatar
+            button
+            :ripple="false"
+            v-for="(suggest, index) in suggests"
+            :key="index"
+            id="mu-item"
+          >
+            <mu-list-item-action>
+              <img src="../assets/icon/search.png" alt style="width:12px;height:12px;">
+            </mu-list-item-action>
+            <mu-list-item-content>
+              <mu-list-item-title>{{suggest.name}}</mu-list-item-title>
+            </mu-list-item-content>
+          </mu-list-item>
+        </mu-list>
+      </div>
+
+      <div class="m-default" v-if="keywords == ''">
+        <div class="m-hotlist">
+          <h3>热门搜索</h3>
+          <mu-button round v-for="hotSong in hotSongs" :key="hotSong.id">{{hotSong.first}}</mu-button>
+        </div>
+        <mu-list textline="two-line">
+          <mu-list-item avatar button :ripple="false">
+            <mu-list-item-action>
+              <img src="../assets/icon/time-circle.png" alt>
+            </mu-list-item-action>
+            <mu-list-item-content>
+              <mu-list-item-title>浪子回头</mu-list-item-title>
+            </mu-list-item-content>
+            <mu-list-item-action>
+              <img src="../assets/icon/close-circle.png" alt>
+            </mu-list-item-action>
+          </mu-list-item>
+        </mu-list>
+      </div>
     </div>
   </mu-container>
 </template>
 
 <script>
-import { getPersonalized, getNewsong } from '../service/getData'
+import { getPersonalized, getNewsong, getHotList, getSearch, getHotSearch, getSuggest } from '../service/getData'
 
+// 节流函数
+const delay = (function () {
+  let time = 0;
+  return function (callback, ms) {
+    clearTimeout(time);
+    time = setTimeout(callback, ms);
+  };
+})();
 
 export default {
   name: 'home',
   data() {
     return {
-      resource: '',
       active2: 0,
       songList: [],
       newSong: [],
+      idx: 1,
+      tracks: [],
+      keywords: '',
+      search: [],
+      hotSongs: [],
+      suggests: [],
     }
   },
   mounted() {
@@ -92,6 +189,31 @@ export default {
     getNewsong().then(res => {
       this.newSong = res.result;
     });
+    getHotList(this.idx).then(res => {
+      this.tracks = res.playlist.tracks;
+    });
+    getHotSearch().then(res => {
+      this.hotSongs = res.result.hots;
+    });
+  },
+  watch: {
+    keywords() {
+      delay(() => {
+        this.fetchData();
+      }, 300);
+    },
+  },
+  methods: {
+    async fetchData(val) {
+      getSearch(this.keywords).then(res => {
+        this.search = res.result.songs;
+        console.log(this.search);
+      });
+      getSuggest(this.keywords).then(res => {
+        this.suggests = res.result.songs;
+      });
+
+    },
   },
 }
 </script>
@@ -181,6 +303,14 @@ export default {
         color: #fff;
         text-shadow: 1px 0 0 rgba(0, 0, 0, 0.15);
       }
+      p {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        font-size: 12px;
+        text-align: center;
+      }
     }
     .mu-list {
       li {
@@ -222,7 +352,7 @@ export default {
           height: 42px;
         }
         p {
-          font-size:30px;
+          font-size: 30px;
           margin-left: 8px;
         }
       }
@@ -239,6 +369,136 @@ export default {
         line-height: 16px;
         -webkit-transform: scale(0.75);
         transform: scale(0.75);
+      }
+    }
+  }
+  //热歌榜
+  .hot-music {
+    .hot-bg {
+      background-image: url("../assets/image/bg-hot.png");
+      background-repeat: no-repeat;
+      width: 100%;
+      .hot-info {
+        padding: 15px;
+        p {
+          color: #fff;
+          margin-top: 0;
+          margin-bottom: 0;
+          &:nth-of-type(1) {
+            font-size: 18px;
+            font-style: italic;
+          }
+          &:nth-of-type(2) {
+            font-size: 40px;
+          }
+          &:nth-of-type(3) {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+    .hot-song-list {
+      .list-box {
+        border-bottom: 1px solid #e5e5e5;
+        .list-number {
+          font-size: 18px;
+          color: #d43c33;
+        }
+        .track-name {
+          font-size: 18px;
+        }
+        .play {
+          img {
+            width: 22px;
+            height: 22px;
+          }
+        }
+      }
+      p {
+        text-align: center;
+        color: #999;
+        padding-right: 14px;
+      }
+    }
+  }
+  // 搜索
+  .search {
+    .form {
+      padding: 15px 10px;
+      border-bottom: 1px solid #e5e5e5;
+      .s-input {
+        width: 100%;
+        height: 30px;
+        background: #ebecec;
+        box-sizing: border-box;
+        border-radius: 10px;
+        padding: 0 30px;
+        border-radius: 30px;
+        position: relative;
+        input {
+          border: 0;
+          outline: none;
+          width: 100%;
+          height: 30px;
+          line-height: 18px;
+          background: transparent;
+          font-size: 14px;
+          color: #333;
+        }
+        i {
+          width: 12px;
+          height: 12px;
+          background: url("../assets/icon/search.png");
+          background-repeat: no-repeat;
+          background-size: 12px 12px;
+          position: absolute;
+          left: 0;
+          top: 9px;
+          margin: 0 8px;
+          vertical-align: middle;
+        }
+      }
+    }
+
+    .m-recom {
+      .mu-item-action {
+        min-width: 26px;
+        .mu-list-two-line,
+        .mu-item {
+          height: 0;
+        }
+      }
+      #m-keywords {
+        font-size: 16px;
+        color: #507daf;
+      }
+      #mu-item {
+        border-bottom: 1px solid #e5e5e5;
+      }
+    }
+
+    .m-default {
+      .m-hotlist {
+        padding: 15px 10px 0;
+        h3 {
+          font-size: 12px;
+          line-height: 12px;
+          color: #666;
+        }
+        .mu-raised-button {
+          box-shadow: none;
+          border: 1px solid #e5e5e5;
+          background: #fafafa;
+          margin-right: 8px;
+          margin-bottom: 8px;
+          .mu-button-wrapper {
+            color: #333;
+            font-size: 14px;
+          }
+        }
+      }
+      .mu-item-action {
+        min-width: 26px;
       }
     }
   }
