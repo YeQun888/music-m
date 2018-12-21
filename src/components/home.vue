@@ -102,12 +102,15 @@
     <div class="search" v-if="active2 === 2">
       <form action="searchForm" class="form">
         <div class="s-input">
-          <i class="s-icon"></i>
-          <input type="text" placeholder="搜索歌曲/歌手/专辑" v-model="keywords">
+          <i></i>
+          <input type="text" placeholder="搜索歌曲/歌手/专辑" v-model="keywords" @click="show()">
+          <div class="icon-delete" v-if="keywords !== ''" @click="deleteKeys()">
+            <i></i>
+          </div>
         </div>
       </form>
 
-      <div class="m-recom" v-if="keywords !== ''">
+      <div class="m-recom" v-if="keywords !== '' && !key">
         <mu-list textline="two-line">
           <mu-list-item avatar button :ripple="false" id="mu-item">
             <mu-list-item-content>
@@ -125,9 +128,41 @@
             <mu-list-item-action>
               <img src="../assets/icon/search.png" alt style="width:12px;height:12px;">
             </mu-list-item-action>
-            <mu-list-item-content>
+            <mu-list-item-content @click="showResult(suggest)">
               <mu-list-item-title>{{suggest.name}}</mu-list-item-title>
             </mu-list-item-content>
+          </mu-list-item>
+        </mu-list>
+      </div>
+
+      <div class="m-searchresult" v-if="key && !keywords == ''">
+        <mu-list textline="two-line">
+          <mu-sub-header inset>最佳匹配</mu-sub-header>
+          <mu-list-item
+            avatar
+            button
+            :ripple="false"
+            id="mu-item"
+            v-for="(song, index) in searchResultList"
+            :key="index"
+          >
+            <mu-list-item-content>
+              <mu-list-item-title class="m-title">{{song.name}}</mu-list-item-title>
+              <mu-list-item-sub-title
+                class="m-name"
+                v-for="(artist, index) in song.artists"
+                :key="index"
+                v-if="index < 1"
+              >
+                <span>
+                  <img src="../assets/icon/SQ.png" alt>
+                </span>
+                {{artist.name}}-{{song.name}}
+              </mu-list-item-sub-title>
+            </mu-list-item-content>
+            <mu-list-item-action class="m_play">
+              <img src="../assets/icon/play-circle.png" alt>
+            </mu-list-item-action>
           </mu-list-item>
         </mu-list>
       </div>
@@ -156,7 +191,8 @@
 </template>
 
 <script>
-import { getPersonalized, getNewsong, getHotList, getSearch, getHotSearch, getSuggest } from '../service/getData'
+import { getPersonalized, getNewsong, getHotList, getSearch, getHotSearch, getSuggest, getMultimatch } from '../service/getData'
+import { getStore, setStore } from '../config/mUtils'
 
 // 节流函数
 const delay = (function () {
@@ -180,6 +216,10 @@ export default {
       search: [],
       hotSongs: [],
       suggests: [],
+      searchHistory: [],//搜索历史纪录
+      showSearchResult: true,//是否显示搜索结果列表
+      searchResultList: [],//搜索结果列表
+      key: '',
     }
   },
   mounted() {
@@ -207,12 +247,25 @@ export default {
     async fetchData(val) {
       getSearch(this.keywords).then(res => {
         this.search = res.result.songs;
-        console.log(this.search);
+        // console.log(this.search);
       });
       getSuggest(this.keywords).then(res => {
         this.suggests = res.result.songs;
       });
-
+    },
+    deleteKeys: function () {
+      this.keywords = '';
+      this.key = false;
+    },
+    showResult: function (suggest) {
+      this.key = suggest.name;
+      getSearch(this.key).then(res => {
+        this.searchResultList = res.result.songs;
+      });
+    },
+    show: function () {
+      this.keywords != '';
+      this.key = false;
     },
   },
 }
@@ -457,9 +510,25 @@ export default {
           margin: 0 8px;
           vertical-align: middle;
         }
+        .icon-delete {
+          i {
+            width: 12px;
+            height: 12px;
+            background: url("../assets/icon/close-circle.png");
+            background-repeat: no-repeat;
+            background-size: 12px 12px;
+            position: absolute;
+            right: 0;
+            top: 9px;
+            margin: 0 8px;
+            vertical-align: middle;
+            left: 320px;
+          }
+        }
       }
     }
 
+    //搜索匹配建议
     .m-recom {
       .mu-item-action {
         min-width: 26px;
@@ -477,6 +546,7 @@ export default {
       }
     }
 
+    //热搜列表
     .m-default {
       .m-hotlist {
         padding: 15px 10px 0;
@@ -499,6 +569,36 @@ export default {
       }
       .mu-item-action {
         min-width: 26px;
+      }
+    }
+    //搜索结果列表展示
+    .m-searchresult {
+      .mu-sub-header.inset {
+        padding-left: 16px;
+        border-bottom: 1px solid #e4e4e4;
+      }
+      #mu-item {
+        border-bottom: 1px solid #e4e4e4;
+        .m-title {
+          font-size: 18px;
+          color: #333;
+        }
+        .m-name {
+          font-size: 12px;
+          color: #888;
+          span {
+            img {
+              width: 12px;
+              height: 8px;
+            }
+          }
+        }
+        .m_play {
+          img {
+            width: 22px;
+            heigth: 22px;
+          }
+        }
       }
     }
   }

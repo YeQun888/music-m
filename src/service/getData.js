@@ -30,3 +30,8 @@ export const getHotSearch = () => fetch('/search/hot', {});
 export const getSuggest = (keywords) => fetch('/search/suggest', {
   keywords,
 });
+
+//搜索多重匹配
+export const getMultimatch = (keywords) => fetch('/search/multimatch', {
+  keywords,
+});
