@@ -35,3 +35,8 @@ export const getSuggest = (keywords) => fetch('/search/suggest', {
 export const getMultimatch = (keywords) => fetch('/search/multimatch', {
   keywords,
 });
+
+//获取歌单详情
+export const getDetail = (id) => fetch('/playlist/detail', {
+  id,
+});

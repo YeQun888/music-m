@@ -20,7 +20,7 @@
       </div>
       <mu-row gutter>
         <mu-col span="4" v-for="(item,index) in songList" :key="item.id" v-if="index < 6">
-          <div class="grid-cell">
+          <div class="grid-cell" @click="goSongDetails(item)">
             <img :src="item.picUrl" alt>
             <span class="u-earp remd_lnum">{{item.trackCount}}万</span>
             <p>{{item.name}}</p>
@@ -135,7 +135,7 @@
         </mu-list>
       </div>
 
-      <div class="m-searchresult" v-if="key && !keywords == ''">
+      <div class="m-searchresult" v-if="key && keywords !== ''">
         <mu-list textline="two-line">
           <mu-sub-header inset>最佳匹配</mu-sub-header>
           <mu-list-item
@@ -173,14 +173,21 @@
           <mu-button round v-for="hotSong in hotSongs" :key="hotSong.id">{{hotSong.first}}</mu-button>
         </div>
         <mu-list textline="two-line">
-          <mu-list-item avatar button :ripple="false">
+          <mu-list-item
+            avatar
+            button
+            :ripple="false"
+            v-for="(historySong, index) in searchHistory"
+            :key="index"
+            id="mu-item"
+          >
             <mu-list-item-action>
               <img src="../assets/icon/time-circle.png" alt>
             </mu-list-item-action>
             <mu-list-item-content>
-              <mu-list-item-title>浪子回头</mu-list-item-title>
+              <mu-list-item-title>{{historySong.name}}</mu-list-item-title>
             </mu-list-item-content>
-            <mu-list-item-action>
+            <mu-list-item-action @click="deleteHistory(index)">
               <img src="../assets/icon/close-circle.png" alt>
             </mu-list-item-action>
           </mu-list-item>
@@ -217,7 +224,6 @@ export default {
       hotSongs: [],
       suggests: [],
       searchHistory: [],//搜索历史纪录
-      showSearchResult: true,//是否显示搜索结果列表
       searchResultList: [],//搜索结果列表
       key: '',
     }
@@ -236,36 +242,44 @@ export default {
       this.hotSongs = res.result.hots;
     });
   },
-  watch: {
-    keywords() {
-      delay(() => {
-        this.fetchData();
-      }, 300);
-    },
-  },
+
   methods: {
     async fetchData(val) {
       getSearch(this.keywords).then(res => {
         this.search = res.result.songs;
-        // console.log(this.search);
       });
       getSuggest(this.keywords).then(res => {
         this.suggests = res.result.songs;
       });
     },
-    deleteKeys: function () {
+    deleteKeys() {
       this.keywords = '';
       this.key = false;
     },
-    showResult: function (suggest) {
-      this.key = suggest.name;
+    showResult(suggest) {
+      this.keywords = this.key = suggest.name;
       getSearch(this.key).then(res => {
         this.searchResultList = res.result.songs;
       });
+      this.searchHistory.unshift(suggest);
     },
-    show: function () {
+    show() {
       this.keywords != '';
       this.key = false;
+    },
+    deleteHistory(index) {
+      this.searchHistory.splice(index, 1);
+    },
+    //进入歌单详细页面
+    goSongDetails(item) {
+      this.$router.push({ path: '/songDetails', params: { id: item.id } });
+    },
+  },
+  watch: {
+    keywords() {
+      delay(() => {
+        this.fetchData();
+      }, 300);
     },
   },
 }
@@ -569,6 +583,9 @@ export default {
       }
       .mu-item-action {
         min-width: 26px;
+      }
+      #mu-item {
+        border-bottom: 1px solid #e4e4e4;
       }
     }
     //搜索结果列表展示
