@@ -40,3 +40,20 @@ export const getMultimatch = (keywords) => fetch('/search/multimatch', {
 export const getDetail = (id) => fetch('/playlist/detail', {
   id,
 });
+
+//获取歌曲url
+export const getSongUrl = (id) => fetch('/song/url', {
+  id,
+});
+
+
+//获取歌词
+export const getSongLyric = (id) => fetch('/lyric', {
+  id,
+});
+
+
+//获取单个歌曲详情
+export const getSongDetail = (ids) => fetch('/song/detail', {
+  ids,
+});

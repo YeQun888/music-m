@@ -31,7 +31,14 @@
         <p>最新音乐</p>
       </div>
       <mu-list textline="two-line">
-        <mu-list-item avatar :ripple="false" button v-for="item in newSong" :key="item.id">
+        <mu-list-item
+          avatar
+          :ripple="false"
+          button
+          v-for="item in newSong"
+          :key="item.id"
+          @click="getPlaySong(item)"
+        >
           <mu-list-item-content
             v-for="(artist,index1) in item.song.artists"
             :key="artist.id"
@@ -273,6 +280,10 @@ export default {
     //进入歌单详细页面
     goSongDetails(item) {
       this.$router.push({ path: '/songDetails', query: { id: item.id } });
+    },
+    //播放音乐
+    getPlaySong(item) {
+      this.$router.push({ path: '/play', query: { id: item.id } });
     },
   },
   watch: {

@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import login from '@/components/login'
 import home from '@/components/home'
 import songDetails from '@/components/songDetails'
+import play from '@/components/play'
 
 Vue.use(Router)
 
@@ -19,6 +20,10 @@ export default new Router({
     {
       path: '/songDetails',
       component: songDetails
+    },
+    {
+      path: '/play',
+      component: play
     },
   ]
 })
