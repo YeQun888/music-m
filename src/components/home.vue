@@ -272,7 +272,7 @@ export default {
     },
     //进入歌单详细页面
     goSongDetails(item) {
-      this.$router.push({ path: '/songDetails', params: { id: item.id } });
+      this.$router.push({ path: '/songDetails', query: { id: item.id } });
     },
   },
   watch: {
