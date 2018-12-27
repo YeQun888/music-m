@@ -43,6 +43,7 @@
           v-for="(track,index) in playlist.tracks"
           :key="track.id"
           id="mu-item"
+          @click="getPlaySong(track)"
         >
           <mu-list-item-action avatar>{{index+1}}</mu-list-item-action>
           <mu-list-item-content v-for="(ar,index1) in track.ar" :key="ar.id" v-if="index1 < 1">
@@ -95,6 +96,9 @@ export default {
       setTimeout(() => {
         this.loading = false;
       }, 2000)
+    },
+    getPlaySong(track) {
+      this.$router.push({ path: '/play', query: { id: track.id } });
     },
   },
 }

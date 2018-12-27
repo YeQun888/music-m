@@ -88,6 +88,7 @@
           :key="track.id"
           class="list-box"
           v-if="index < 10"
+          @click="getPlaySong(track)"
         >
           <mu-list-item-action class="list-number">{{index + 1}}</mu-list-item-action>
           <mu-list-item-content>
@@ -152,6 +153,7 @@
             id="mu-item"
             v-for="(song, index) in searchResultList"
             :key="index"
+            @click="getPlaySong(song)"
           >
             <mu-list-item-content>
               <mu-list-item-title class="m-title">{{song.name}}</mu-list-item-title>

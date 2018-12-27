@@ -23,7 +23,14 @@
             </div>
             <div class="p-lyrics">
               <h3>{{song.al.name}}</h3>
-              <p>adadasdasdas</p>
+              <div class="lyric">
+                <!-- <p
+                  v-for="(lrc, index) in lrcObj"
+                  :key="index"
+                  v-if="currentTime == index"
+                >{{lrc[1]}}</p>-->
+                <p id="lyrics"></p>
+              </div>
             </div>
           </div>
         </mu-flex>
@@ -55,7 +62,19 @@ export default {
       activeClass: 'hidden',
       errorClass: 'show',
       isActive: true,
+      lrcObj: {},
+      currentTime: 0,
+      intervalId: null, // 定时器ID
+      playTime: 2000, // 定时器执行间隔
     }
+  },
+  created() {
+    this.intervalId = setInterval(() => { // 定义定时器
+      this.getLyricTime();
+    }, this.playTime)
+  },
+  destroyed() {
+    clearInterval(this.intervalId) // 清除定时器
   },
   mounted() {
     getSongUrl(this.id).then(res => {
@@ -63,6 +82,26 @@ export default {
     });
     getSongLyric(this.id).then(res => {
       this.lyric = res.lrc.lyric;
+      let lines = this.lyric.split('\n');
+      let pattern = /\[\d{2}:\d{2}.\d{2}\]/g;
+      let result = [];
+      while (!pattern.test(lines[0])) {
+        lines = lines.slice(1);
+      }
+      lines[lines.length - 1].length === 0 && lines.pop();
+      for (let data of lines) {
+        let index = data.indexOf(']');
+        let time = data.substring(0, index + 1);
+        let value = data.substring(index + 1);
+        let timeString = time.substring(1, time.length - 2);
+        let timeArr = timeString.split(':');
+        result.push([parseInt(timeArr[0], 10) * 60 + parseInt(timeArr[1]), value]);
+      }
+      result.sort(function (a, b) {
+        return a[0] - b[0];
+      });
+      return this.lrcObj = result;
+      // console.log(result);
     });
     getSongDetail(this.id).then(res => {
       this.songs = res.songs;
@@ -81,6 +120,22 @@ export default {
         this.isActive = true;
       }
     },
+    getLyricTime() {
+      let audio = document.querySelector('#audio');
+      this.currentTime = audio.currentTime;
+      for (var i = 0; i < this.lrcObj.length; i++) {
+        if ((this.currentTime > this.lrcObj[i][0]) && (this.currentTime < this.lrcObj[i + 1][0])) {
+          document.getElementById("lyrics").innerHTML = this.lrcObj[i][1];
+        }
+      }
+    },
+
+  },
+  computed: {
+
+  },
+  watch: {
+
   },
 }
 </script>
@@ -104,8 +159,8 @@ export default {
         width: 80%;
         height: 80%;
         border-radius: 50%;
-        -webkit-animation: myRotate 10s linear infinite;
-        animation: myRotate 10s linear infinite;
+        -webkit-animation: myRotate 16s linear infinite;
+        animation: myRotate 16s linear infinite;
         @-webkit-keyframes myRotate {
           0% {
             -webkit-transform: rotate(0deg);
@@ -132,7 +187,7 @@ export default {
       img:nth-of-type(3) {
         position: absolute;
         left: 44%;
-        top: 42%;
+        top: 38%;
       }
       .show {
         opacity: 1;
@@ -143,6 +198,24 @@ export default {
     }
     .p-lyrics {
       text-align: center;
+      h3 {
+        color: #333;
+        font-size: 18px;
+      }
+      .lyric {
+        text-align: center;
+        height: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        p {
+          color: #d43c33;
+          font-weight: bold;
+          font-size: 16px;
+        }
+      }
     }
   }
   .p-btn {
