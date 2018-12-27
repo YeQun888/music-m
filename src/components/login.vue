@@ -21,11 +21,13 @@
           </mu-form-item>
           <mu-form-item prop="password" :rules="passwordRules" class="password">
             <mu-text-field
-              type="password"
               v-model="validateForm.password"
               prop="password"
               placeholder="请输入密码"
               class="input"
+              :action-icon="visibility ? 'visibility_off' : 'visibility'"
+              :action-click="() => (visibility = !visibility)"
+              :type="visibility ? 'text' : 'password'"
             ></mu-text-field>
           </mu-form-item>
           <mu-form-item>
@@ -45,23 +47,27 @@ export default {
   data() {
     return {
       phoneRules: [
-        { validate: (val) => !!val, message: '必须填写手机号' },
+        { validate: (val) => (/^1(3|4|5|7|8)\d{9}$/.test(val)), message: '请填写手机号' },
       ],
       passwordRules: [
-        { validate: (val) => !!val, message: '必须填写密码' },
+        { validate: (val) => !!val, message: '请填写密码' },
       ],
       validateForm: {
         phone: '',
         password: '',
         isAgree: false
       },
+      visibility: false,
     }
+  },
+  mounted() {
+
   },
   methods: {
     submit() {
       getLogin(this.validateForm.phone, this.validateForm.password).then(res => {
-        this.$router.push({ path: '/home' })
-      })
+        this.$router.push({ path: '/home' });
+      });
     },
   }
 }
