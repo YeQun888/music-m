@@ -29,7 +29,7 @@
                   :key="index"
                   v-if="currentTime == index"
                 >{{lrc[1]}}</p>-->
-                <p id="lyrics"></p>
+                <p v-text="newLyrics"></p>
               </div>
             </div>
           </div>
@@ -66,6 +66,7 @@ export default {
       currentTime: 0,
       intervalId: null, // 定时器ID
       playTime: 2000, // 定时器执行间隔
+      newLyrics: '',//对比后显示的歌词
     }
   },
   created() {
@@ -125,7 +126,7 @@ export default {
       this.currentTime = audio.currentTime;
       for (var i = 0; i < this.lrcObj.length; i++) {
         if ((this.currentTime > this.lrcObj[i][0]) && (this.currentTime < this.lrcObj[i + 1][0])) {
-          document.getElementById("lyrics").innerHTML = this.lrcObj[i][1];
+          this.newLyrics = this.lrcObj[i][1];
         }
       }
     },
