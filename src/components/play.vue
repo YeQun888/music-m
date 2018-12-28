@@ -160,8 +160,8 @@ export default {
         width: 80%;
         height: 80%;
         border-radius: 50%;
-        -webkit-animation: myRotate 16s linear infinite;
-        animation: myRotate 16s linear infinite;
+        -webkit-animation: myRotate 20s linear infinite;
+        animation: myRotate 20s linear infinite;
         @-webkit-keyframes myRotate {
           0% {
             -webkit-transform: rotate(0deg);
